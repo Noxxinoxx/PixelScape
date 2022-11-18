@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tile Set Manager</title>
+</head>
+
+<body>
+    <div >
+        <canvas id="canvas" width="1200px" height="1200px" style="background-color: blue;"></canvas>
+        <br>
+        <canvas id="canvass"></canvas>
+    </div>
+    <script>
+        //layering  next up layering      
+        
+        var bw = 1200;
+        
+        var bh = 1200;
+        var p = 0;
+        var imgdata = 0
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+        var gameMap = []
+        function drawBoard(w,h, offsetx, offsety){
+            
+            for (var i = 0; i < w / 32; i++) {
+                for(var ii = 0; ii < h / 32; ii++) {
+                    gameMap.push(0)
+                }
+            }
+
+            for (var x = 0; x <= w; x += 32) {
+                context.moveTo(0.5 + x + p, p);
+                context.lineTo(0.5 + x + p, h + p);
+                
+            }
+
+            for (var x = 0; x <= h; x += 32) {
+                context.moveTo(p, 0.5 + x + p);
+                context.lineTo(w + p, 0.5 + x + p);
+                
+            }
+            console.log(gameMap)
+            context.strokeStyle = "black";
+            context.stroke();
+
+            canvas.addEventListener("mouseover", (event) => {
+                console.log("over")
+                document.addEventListener("click", (event) => {
+                    var x = event.clientX 
+                    var y = event.clientY
+                    var x = x + Math.floor(scrollX)
+                    var y = y + Math.floor(scrollY)
+                    
+                    f = findSquare(x, y, 32, 32)
+                    x = f[0]
+                    y = f[1]
+                    
+
+                    context.putImageData(imgdata, x,y)
+                })
+            })
+            
+        }
+        function findSquare(x,y, offsetx, offsety) {
+            //play 4000 * 4000 with jump 40
+            var newx = 0
+            var newy = 0 
+            for(ix = x - offsetx; ix < x; ix++) {
+                if(ix % offsetx == 0) {
+                    newx = ix
+                }
+            }
+            for(iy = y - offsety; iy < y; iy++) {
+                if(iy % offsety == 0) {
+                    newy = iy
+                }
+            }
+            return [newx, newy]
+        }
+        
+
+    
+        function renderPartImage() {
+            var cc = document.getElementById("canvass")
+            var ctx = cc.getContext("2d");
+            var img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = "http://localhost:3000/g.png";
+
+            img.onload = function(){
+                ctx.drawImage(img,0,0);   
+            }
+            
+            
+            var w = img.width 
+            var h = img.height
+            
+            
+            offsetx = 32
+            offsety = 32
+            cc.setAttribute("width", img.width)
+            cc.setAttribute("height", img.height)
+            
+            cc.addEventListener("click", (event) => {
+                var x = event.clientX 
+                var y = event.clientY
+                var x = x + Math.floor(scrollX)
+                var y = y + Math.floor(scrollY) - 1200
+                f = findSquare(x - 4 , y, offsetx, offsety)
+                x = f[0]
+                y = f[1]
+                console.log(x,y)
+                var f = ctx.getImageData(x,y, offsetx, offsety)
+                var pix = f.data
+                var r=0, g=1, b=2,a=3;
+                for(var p = 0; p < pix.length;p+=4) {
+                    
+                    if (pix[p+r] == 255 && pix[p+g] == 255 && pix[p+b] == 255) {  
+                        console.log("print thing" , p) 
+                        pix[p+a] = 0;
+                    }
+                }
+
+                imgdata = f
+                
+                
+                console.log(f)
+
+            })
+            console.log(offsetx, offsety)
+            drawBoard(1200, 1200, offsetx, offsety);
+            
+            
+
+
+        }
+        renderPartImage()
+
+
+    </script>
+
+    
+
+
+
+
+</body>
+
+
+
+
+
+</html>
